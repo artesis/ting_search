@@ -78,5 +78,25 @@
     }
   };
 
+  /**
+   *
+   */
+  Drupal.behaviors.permalink = {
+      attach: function(context, settings) {
+        $('.permalink').click(function(e){
+          var content = $('<div class="ding-popup-content"><textarea>' + $(this).attr('href') + '</textarea></div>');
+          var dialog = content.dialog({
+            'autoOpen': false,
+            'modal': true
+          });
+
+          dialog.dialog('open');
+          $('textarea', content).select();
+
+          return false;
+        });
+      }
+  };
+
 } (jQuery));
 

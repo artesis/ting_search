@@ -868,3 +868,23 @@ function _ting_search_quote_callback($matches) {
   // We have a quote. Just return it.
   return $matches[1];
 }
+
+/**
+ * Implements hook_ding_entity_buttons().
+ */
+function ting_search_ding_entity_buttons($type, $entity, $widget = 'default') {
+  if (!is_object($entity)) {
+    return array();
+  }
+
+  $options = array('query' => array('permalink' => 1), 'absolute' => true);
+  $url = url('search/ting/' . $entity->localId, $options);
+
+  $markup = array(
+    '#prefix' => '<a href="' . $url . '" class="btn permalink" title="' . t('Permalink to this item') . '">',
+    '#suffix' => '</a>',
+    '#markup' => '<i class="icon-flag"></i>'
+  );
+
+  return array($markup);
+}
