@@ -863,25 +863,49 @@ function ting_search_ding_entity_buttons($type, $entity, $widget = 'default') {
   $url = url('search/ting/' . $entity->getLocalId(), $options);
 
   $permalink_markup = array(
-    '#prefix' => '<a href="' . $url . '" class="btn permalink" title="' . t('Permalink to this item') . '">',
-    '#suffix' => '</a>',
-    '#markup' => '<i class="icon-flag"></i>'
+    '#theme' => 'link',
+    '#text' => '&nbsp;<i class="icon-white icon-flag"></i>&nbsp;',
+    '#path' => $url,
+    '#options' => array(
+      'attributes' => array(
+        'class' => array(
+          'btn',
+          'permalink',
+          'btn-artesis-turquoise',
+        ),
+        'title' => t('Permalink'),
+      ),
+      'html' => TRUE,
+    ),
+    '#weight' => 10,
   );
 
   $show_markup = array(
     '#theme' => 'link',
     '#text' => '<i class="icon-white icon-plus"></i>&nbsp;' . t('Show info'),
-    '#path' => NULL,
+    '#path' => current_path(),
     '#options' => array(
       'attributes' => array(
         'class' => array(
           'btn',
+          'show-info',
           'btn-artesis-turquoise',
         ),
       ),
       'html' => TRUE,
     ),
+    '#weight' => $permalink_markup['#weight'] + 5,
   );
 
-  return array($permalink_markup, $show_markup, );
+  $hide_markup = $show_markup;
+  $hide_markup['#text'] = '<i class="icon-white icon-minus"></i>&nbsp;' . t('Hide info');
+  $hide_markup['#options']['attributes']['class'] = array(
+    'btn',
+    'hide-info',
+    'btn-artesis-turquoise',
+    'hidden',
+  );
+  $hide_markup['#weight'] = $show_markup['#weight'] - 1;
+
+  return array($permalink_markup, $show_markup, $hide_markup);
 }

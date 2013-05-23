@@ -84,10 +84,11 @@
   Drupal.behaviors.permalink = {
       attach: function(context, settings) {
         $('.btn.permalink').click(function(e){
-          var content = $('<div class="ding-popup-content"><h4>' + Drupal.t('Permalink') + '</h4><textarea>' + $(this).attr('href') + '</textarea></div>');
+          var content = $('<div><textarea>' + $(this).attr('href') + '</textarea></div>');
           var dialog = content.dialog({
             'autoOpen': false,
-            'modal': true
+            'modal': true,
+            'title': Drupal.t('Permalink')
           });
 
           dialog.dialog('open');
