@@ -65,24 +65,12 @@ function ting_search_search_info() {
 function ting_search_ding_facetbrowser() {
   $results             = new stdClass();
   $results->show_empty = FALSE;
-  $search_result       = drupal_static('ting_search_results');
+  $search_result = drupal_static('ting_search_results');
   if ($search_result) {
-    $results->facets     = ($search_result instanceof TingClientSearchResult) ? $search_result->facets : array();
-    $results->searchkey  = $search_result->search_key;
+    $results->facets = $search_result->getFacets();
+    $results->searchkey = $search_result->getKeyword();
     return $results;
   }
-}
-
-/**
- * Implements hook_entity_info_alter().
- */
-function ting_search_entity_info_alter(&$entity_info) {
-  $entity_info['ting_collection']['view modes'] += array(
-    'search_result' => array(
-      'label' => t('Search result'),
-      'custom settings' => FALSE,
-    ),
-  );
 }
 
 /**
@@ -372,38 +360,30 @@ function ting_search_search_execute($keys = NULL, $conditions = NULL) {
       watchdog('ting_search', 'Enable ting-module to get searchresults', array(), WATCHDOG_CRITICAL);
       $search_result = array();
     }
+    $search_result->setKeyword($keys);
 
-    if (isset($search_result->collections)) {
-      $search_result->search_key = $keys;
+    // TODO: caching highes total_result know value of specific search
+    //       at the moment we only know if there is one more page
+    $total_results = ($page + 1) * $results_per_page + ($search_result->hasMore() ? 1 : 0);
 
-      // TODO: caching highes total_result know value of specific search
-      //       at the moment we only know if there is one more page
-      $total_results = ($page + 1) * $results_per_page + ($search_result->more ? 1 : 0);
+    pager_default_initialize($total_results, $results_per_page);
 
-      pager_default_initialize($total_results, $results_per_page);
+    foreach ($search_result as $object) {
+      $build = ting_object_view($object, 'search_result');
 
-      foreach ($search_result->collections as &$collection) {
+      // Set proper link to result item.
+      $uri = entity_uri('ting_object', $object);
 
-        $build = ting_collection_view($collection, 'teaser');
-
-        // Set proper link to result item.
-        if (count($collection->entities) == 1) {
-          $uri =  entity_uri('ting_object', $collection->entities[0]);
-        }
-        else {
-          $uri = entity_uri('ting_collection', $collection);
-        }
-
-        $results[] = array(
-          'type' => '',
-          'user' => '',
-          'date' => '',
-          'link' => url($uri['path']),
-          'title' => $collection->reply->objects[0]->record['dc:title'][''][0],
-          'snippet' => drupal_render($build),
-        );
-      }
+      $results[] = array(
+        'type' => '',
+        'user' => '',
+        'date' => '',
+        'link' => url($uri['path']),
+        'title' => $object->getTitle(),
+        'snippet' => drupal_render($build)
+      );
     }
+
   }
   catch (TingClientException $e) {
     // TODO: Log the error.
@@ -871,20 +851,37 @@ function _ting_search_quote_callback($matches) {
 
 /**
  * Implements hook_ding_entity_buttons().
+ *
+ * Add "permalink" and "show info" buttons.
  */
 function ting_search_ding_entity_buttons($type, $entity, $widget = 'default') {
   if (!is_object($entity)) {
     return array();
   }
 
-  $options = array('query' => array('permalink' => 1), 'absolute' => true);
-  $url = url('search/ting/' . $entity->localId, $options);
+  $options = array('absolute' => true);
+  $url = url('search/ting/' . $entity->getLocalId(), $options);
 
-  $markup = array(
+  $permalink_markup = array(
     '#prefix' => '<a href="' . $url . '" class="btn permalink" title="' . t('Permalink to this item') . '">',
     '#suffix' => '</a>',
     '#markup' => '<i class="icon-flag"></i>'
   );
 
-  return array($markup);
+  $show_markup = array(
+    '#theme' => 'link',
+    '#text' => '<i class="icon-white icon-plus"></i>&nbsp;' . t('Show info'),
+    '#path' => NULL,
+    '#options' => array(
+      'attributes' => array(
+        'class' => array(
+          'btn',
+          'btn-artesis-turquoise',
+        ),
+      ),
+      'html' => TRUE,
+    ),
+  );
+
+  return array($permalink_markup, $show_markup, );
 }
