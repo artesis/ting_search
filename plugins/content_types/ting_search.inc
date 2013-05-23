@@ -17,10 +17,10 @@ function ting_search_content_type_render($subtype, $conf, $panel_args, $context)
   global $pager_page_array, $pager_total;
   $block = new stdClass();
 
-  if ($pager_total[0] == TRUE) {
+  if ($pager_total[0]) {
     $results = drupal_static('ting_search_results');
-    $from = ($pager_page_array[0] < 1 ? 1 : ($pager_page_array[0]) * $results->count() + 1);
-    $to = $from + ($results->count() -1);
+    $from = ($pager_page_array[0] < 1 ? 0 : $pager_page_array[0]) * $results->getPerPage() + 1;
+    $to = $from + (count($results) - 1);
     $total = $results->getTotal();
     $block->title = t('Search results text');
     $block->content = '<div class="ting-search-amount-block">' . format_plural($total,

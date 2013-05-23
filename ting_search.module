@@ -352,20 +352,16 @@ function ting_search_search_execute($keys = NULL, $conditions = NULL) {
       $options['sort'] = $conditions['sort'];
     }
 
-
     if (module_exists('ting')) {
       $search_result = ting_do_search($query, $page + 1, $results_per_page, $options);
+      $search_result->setKeyword($keys);
     }
     else {
       watchdog('ting_search', 'Enable ting-module to get searchresults', array(), WATCHDOG_CRITICAL);
       $search_result = array();
     }
-    $search_result->setKeyword($keys);
 
-    // TODO: caching highes total_result know value of specific search
-    //       at the moment we only know if there is one more page
-    $total_results = ($page + 1) * $results_per_page + ($search_result->hasMore() ? 1 : 0);
-
+    $total_results = $search_result->getTotal();
     pager_default_initialize($total_results, $results_per_page);
 
     foreach ($search_result as $object) {
