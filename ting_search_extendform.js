@@ -84,11 +84,16 @@
   Drupal.behaviors.permalink = {
       attach: function(context, settings) {
         $('.btn.permalink').click(function(e){
-          var content = $('<div><textarea>' + $(this).attr('href') + '</textarea></div>');
+          $(this).addClass('active');
+          var content = $('<div><textarea>' + this.getAttribute('href') + '</textarea></div>');
+          var self = $(this);
           var dialog = content.dialog({
             'autoOpen': false,
             'modal': true,
-            'title': Drupal.t('Permalink')
+            'title': Drupal.t('Permalink'),
+            'beforeClose': function() {
+              self.removeClass('active');
+            }
           });
 
           dialog.dialog('open');
