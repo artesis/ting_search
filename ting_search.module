@@ -882,14 +882,14 @@ function ting_search_ding_entity_buttons($type, $entity, $widget = 'default') {
 
   $show_markup = array(
     '#theme' => 'link',
-    '#text' => '<i class="icon-white icon-plus"></i>&nbsp;' . t('Show info'),
+    '#text' => '<i class="icon-plus"></i>&nbsp;' . t('Show info'),
     '#path' => current_path(),
     '#options' => array(
       'attributes' => array(
         'class' => array(
           'btn',
           'show-info',
-          'btn-artesis-turquoise',
+          'btn-artesis-blue',
         ),
       ),
       'html' => TRUE,
@@ -898,11 +898,11 @@ function ting_search_ding_entity_buttons($type, $entity, $widget = 'default') {
   );
 
   $hide_markup = $show_markup;
-  $hide_markup['#text'] = '<i class="icon-white icon-minus"></i>&nbsp;' . t('Hide info');
+  $hide_markup['#text'] = '<i class="icon-minus"></i>&nbsp;' . t('Hide info');
   $hide_markup['#options']['attributes']['class'] = array(
     'btn',
     'hide-info',
-    'btn-artesis-turquoise',
+    'btn-artesis-blue',
     'hidden',
   );
   $hide_markup['#weight'] = $show_markup['#weight'] - 1;
