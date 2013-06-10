@@ -429,7 +429,7 @@ function theme_ting_search_pager($variables) {
   // last is the last page listed by this pager piece (re quantity)
   $pager_last = $pager_current + $quantity - $pager_middle;
   // max is the maximum page number
-  $pager_max = $pager_total[$element];
+  $pager_max = ceil($pager_total[$element] / $quantity);
   // End of marker calculations.
 
   // Prepare for generation loop.
@@ -446,24 +446,15 @@ function theme_ting_search_pager($variables) {
   }
   // End of generation loop preparation.
 
-  $li_previous = theme('pager_previous', array('text' => (isset($tags[1]) ? $tags[1] : t('‹ previous')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
 
-  if (empty($li_previous)) {
-    $li_previous = "&nbsp;";
-  }
+  $li_first = theme_icon_button(array('href' => _generate_pager_url()), 'chevron-left', '', 'first');
+  $pager_prev = $pager_current - 2;
+  $prev_link = $pager_prev >= 0 ? array('href' => _generate_pager_url($pager_prev)) : array();
+  $li_previous = theme_icon_button($prev_link, 'chevron-left', '&nbsp;', '&nbsp;');
+  $next_link = $pager_current < $pager_max ? array('href' => _generate_pager_url($pager_current)) : array();
+  $li_next = theme_icon_button($next_link, 'chevron-right', '&nbsp;', '&nbsp;');
+  $li_last = theme_icon_button(array('href' => _generate_pager_url($pager_max - 1)), 'chevron-right', 'last');
 
-  $li_first = theme('pager_first', array('text' => (isset($tags[0]) ? $tags[0] : t('« first')), 'element' => $element, 'parameters' => $parameters));
-
-  if (empty($li_first)) {
-    $li_first = "&nbsp;";
-  }
-
-  $li_next = theme('pager_next', array('text' => (isset($tags[3]) ? $tags[3] : t('next ›')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
-  if (empty($li_next)) {
-    $li_next = "&nbsp;";
-  }
-
-  $li_last = theme('pager_last', array('text' => (isset($tags[4]) ? $tags[4] : t('last »')), 'element' => $element, 'parameters' => $parameters));
 
   if (empty($li_last)) {
     $li_last = "&nbsp;";
@@ -492,22 +483,16 @@ function theme_ting_search_pager($variables) {
       }
       // Now generate the actual pager piece.
       for (; $i <= $pager_last && $i <= $pager_max; $i++) {
-        if ($i < $pager_current) {
-          $items[] = array(
-            'class' => array('pager-item'),
-            'data' => theme('pager_previous', array('text' => $i, 'element' => $element, 'interval' => ($pager_current - $i), 'parameters' => $parameters)),
-          );
-        }
         if ($i == $pager_current) {
           $items[] = array(
-            'class' => array('pager-current'),
-            'data' => $i,
+            'class' => array('pager-current', 'btn'),
+            'data' => '<a class="btn active">' . $i . '</a>',
           );
         }
-        if ($i > $pager_current) {
+        else {
           $items[] = array(
-            'class' => array('pager-item'),
-            'data' => theme('pager_next', array('text' => $i, 'element' => $element, 'interval' => ($i - $pager_current), 'parameters' => $parameters)),
+            'class' => array('pager-item', 'btn'),
+            'data' => '<a class="btn" href="' . _generate_pager_url($i - 1) . '">' . $i . '</a>',
           );
         }
       }
@@ -535,7 +520,13 @@ function theme_ting_search_pager($variables) {
         'data' => $li_last,
       );
     }
-    return theme('item_list', array('items' => $items, 'type' => 'ul', 'attributes' => array('class' => array('pager'))));
+
+    $out = '';
+    foreach ($items as $item) {
+      $out .= $item['data'] . "\n";
+    }
+
+    return '<div class="btn-toolbar paginator"><div class="btn-group">' . $out . '</div></div>';
   }
 }
 
