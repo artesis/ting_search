@@ -166,20 +166,6 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
     $form['search_block_form']['#default_value'] = $search_query;
   }
 
-  $form['sort'] = array(
-    '#type' => 'hidden',
-    '#default_value' => isset($_GET['sort']) ? check_plain($_GET['sort']) : FALSE,
-    '#attributes' => array('id' => 'controls_search_sort'),
-  );
-  $form['size'] = array(
-    '#type' => 'hidden',
-    '#default_value' => isset($_GET['size']) ? (int) $_GET['size'] : FALSE,
-    '#attributes' => array('id' => 'controls_search_size'),
-  );
-
-  // See line 127-130 - disable in the first version
-  //$form['form_id']['#suffix'] = ting_search_get_extended_actions();
-
   if ($advanced) {
     $form['advanced'] = array(
       '#type' => 'fieldset',
@@ -189,14 +175,6 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
       '#weight' => 101,
       '#prefix' => '<div id="advanced-search-wrapper">',
       '#suffix' => '</div>',
-      '#attached' => array(
-        'css' => array(
-          drupal_get_path('module', 'ting_search') . '/ting_search_extendform.css',
-        ),
-        'js' => array(
-          drupal_get_path('module', 'ting_search') . '/ting_search_extendform.js',
-        ),
-      ),
     );
 
     $expand = FALSE;
@@ -211,9 +189,50 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
       );
     }
   }
+
+  $form['sort'] = array(
+    '#type' => 'hidden',
+    '#default_value' => isset($_GET['sort']) ? check_plain($_GET['sort']) : FALSE,
+    '#attributes' => array('id' => 'controls_search_sort'),
+  );
+
+  $form['size'] = array(
+    '#type' => 'hidden',
+    '#default_value' => isset($_GET['size']) ? (int) $_GET['size'] : FALSE,
+    '#attributes' => array('id' => 'controls_search_size'),
+  );
+
+  // See line 127-130 - disable in the first version
+  //$form['form_id']['#suffix'] = ting_search_get_extended_actions();
+
+  $form['#attached'] = array(
+    'css' => array(
+      drupal_get_path('module', 'ting_search') . '/ting_search_extendform.css',
+    ),
+    'js' => array(
+      drupal_get_path('module', 'ting_search') . '/ting_search_extendform.js',
+    ),
+  );
+
   $form['#submit'] = array('ting_search_submit');
 
-  return $form;
+  $form['actions']['clear'] = array(
+    '#prefix' => '<button class="btn clear" type="button" disabled>',
+    '#suffix' => '</button>',
+    '#markup' => '<i class="icon-remove"></i>',
+    '#weigth' => 1,
+  );
+
+  $form['actions']['advanced'] = array(
+    '#prefix' => '<button class="btn advanced" type="button" title="' . t('Advanced search') . '">',
+    '#suffix' => '</button>',
+    '#markup' => '<i class="icon-cog"></i>',
+    '#weigth' => 5,
+  );
+
+  $form['actions']['submit']['#attributes'] = array('class' => array('btn', 'search'));
+  $form['actions']['submit']['#weight'] = 10;
+  $form['actions']['submit']['#value'] = '<i class="icon-search"></i> ' . $form['actions']['submit']['#value'];
 }
 
 /**
@@ -354,9 +373,11 @@ function ting_search_search_execute($keys = NULL, $conditions = NULL) {
 
     if (module_exists('ting')) {
       $search_result = ting_do_search($query, $page + 1, $results_per_page, $options);
-      if (is_a($search_result, 'TingSearchResult')) {
-        $search_result->setKeyword($keys);
+      if (!is_a($search_result, 'TingSearchResult')) {
+        throw new TingClientException('Not a TingSearchResult');
       }
+
+      $search_result->setKeyword($keys);
     }
     else {
       watchdog('ting_search', 'Enable ting-module to get searchresults', array(), WATCHDOG_CRITICAL);
