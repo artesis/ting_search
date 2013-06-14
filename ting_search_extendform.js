@@ -3,6 +3,8 @@
   $(document).ready(function() {
     Drupal.setSelectedLabel();
     Drupal.extendedQueryDisplay();
+    Drupal.collapseExtendedSearch();
+    Drupal.initSearchBlock();
   });
 
   $.TingExtendedForm = {};
@@ -92,6 +94,50 @@
     if (parts.length > 0) {
       $('#search-query-string').text(parts.join(Drupal.t(" AND ")));
     }
+  };
+
+  Drupal.collapseExtendedSearch = function() {
+    var inside_form = false;
+    $('#search-block-form').live('mouseenter', function() {
+      inside_form = true;
+    }).live('mouseleave', function() {
+      inside_form = false;
+    });
+
+    $(document).click(function(event) {
+      if (!inside_form) {
+        if (!$('#edit-advanced-search').hasClass('collapsed')) {
+          $(".extendsearch-advanced .fieldset-title").click();
+          $('.btn.advanced').toggleClass('active');
+        }
+      }
+    });
+  };
+
+  Drupal.initSearchBlock = function() {
+    var form = $('#search-block-form');
+
+    // Toggle class for focused fields.
+    form.find('.extendsearch-advanced input[type=text]').focus(function() {
+      $(this).parents('.form-item:first').addClass('active');
+    }).blur(function() {
+      $(this).parents('.form-item:first').removeClass('active');
+    });
+
+    // Opens advanced search if search fields are not empty.
+    form.find('.form-item-search-block-form input.form-text').focus(function() {
+      $('.extendsearch-advanced.enabled .form-item').each(function() {
+        if ($(this).find('input').val().length > 0) {
+          $('.extendsearch-advanced .fieldset-title').click();
+          $('.btn.advanced').addClass('active');
+          return false;
+        }
+      });
+    });
+
+    form.submit(function() {
+      $('ul.ui-autocomplete').hide();
+    });
   };
 
   Drupal.behaviors.permalink = {
