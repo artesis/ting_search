@@ -354,13 +354,17 @@ function ting_search_search_execute($keys = NULL, $conditions = NULL) {
 
     if (module_exists('ting')) {
       $search_result = ting_do_search($query, $page + 1, $results_per_page, $options);
-      if (is_a($search_result, 'TingSearchResult')) {
-        $search_result->setKeyword($keys);
+
+      // An error occured.
+      if ($search_result === FALSE) {
+        return array();
       }
+
+      $search_result->setKeyword($keys);
     }
     else {
       watchdog('ting_search', 'Enable ting-module to get searchresults', array(), WATCHDOG_CRITICAL);
-      $search_result = array();
+      return array();
     }
 
     $total_results = $search_result->getTotal();
