@@ -217,22 +217,22 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
   $form['#submit'] = array('ting_search_submit');
 
   $form['actions']['clear'] = array(
-    '#prefix' => '<button class="btn clear" type="button" disabled>',
+    '#prefix' => '<button class="btn clear btn-artesis-blue" type="button" disabled>',
     '#suffix' => '</button>',
     '#markup' => '<i class="icon-remove"></i>',
     '#weigth' => 1,
   );
 
   $form['actions']['advanced'] = array(
-    '#prefix' => '<button class="btn advanced" type="button" title="' . t('Advanced search') . '">',
+    '#prefix' => '<button class="btn advanced btn-artesis-blue" type="button" title="' . t('Advanced search') . '">',
     '#suffix' => '</button>',
     '#markup' => '<i class="icon-cog"></i>',
     '#weigth' => 5,
   );
 
-  $form['actions']['submit']['#attributes'] = array('class' => array('btn', 'search'));
+  $form['actions']['submit']['#attributes'] = array('class' => array('btn', 'search', 'btn-artesis-turquoise'));
   $form['actions']['submit']['#weight'] = 10;
-  $form['actions']['submit']['#value'] = '<i class="icon-search"></i> ' . $form['actions']['submit']['#value'];
+  $form['actions']['submit']['#value'] = '<i class="icon-search icon-white"></i> ' . $form['actions']['submit']['#value'];
 }
 
 /**
