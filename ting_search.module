@@ -429,7 +429,7 @@ function theme_ting_search_pager($variables) {
   // last is the last page listed by this pager piece (re quantity)
   $pager_last = $pager_current + $quantity - $pager_middle;
   // max is the maximum page number
-  $pager_max = ceil($pager_total[$element] / $quantity);
+  $pager_max = $pager_total[$element];
   // End of marker calculations.
 
   // Prepare for generation loop.
