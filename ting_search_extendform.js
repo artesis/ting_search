@@ -48,17 +48,19 @@
 
   Drupal.behaviors.readyExtendedForm = {
     attach: function(context, settings) {
-      var btn = $('.btn.advanced', context);
-      var extendsearch = $('.extendsearch-advanced', context);
+      var $btn = $('.btn.advanced', context);
+      var $extendsearch = $('.extendsearch-advanced', context);
 
-      btn.click(function(){
-        extendsearch.find('.fieldset-title').click();
+      $btn.removeAttr('disabled');
+
+      $btn.click(function(){
+        $extendsearch.show().find('.fieldset-title').click();
         $(this).toggleClass('active');
       });
 
       // Make the button active on expanded search.
-      if (!extendsearch.hasClass('collapsed')) {
-        btn.addClass('active');
+      if (!$extendsearch.hasClass('collapsed')) {
+        $btn.addClass('active');
       }
     }
   };
