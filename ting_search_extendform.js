@@ -35,7 +35,7 @@
 
       var val = 0;
       inputs.each(function(key, input){
-        val += input.getAttribute('value').length;
+        val += $(input).attr('value').length;
       });
       val ? btn.removeAttr('disabled') : btn.attr('disabled', true);
 
@@ -145,9 +145,9 @@
   Drupal.behaviors.permalink = {
     attach: function(context, settings) {
       $('.btn.permalink').click(function(e){
-        $(this).addClass('active');
-        var content = $('<div><textarea>' + this.getAttribute('href') + '</textarea></div>');
         var self = $(this);
+        self.addClass('active');
+        var content = $('<div><textarea>' + self.attr('href') + '</textarea></div>');
         var dialog = content.dialog({
           'autoOpen': false,
           'modal': true,
