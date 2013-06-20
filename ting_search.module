@@ -144,12 +144,8 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
       'description' => t('Enter subject keywords'),
     ),
   );
-  // We're going to disable advanced search in
-  // the first version, and implement later on.
-  // When implementing againg, set
-  // $advanced = TRUE - just below
-  // and re-enable asserts in testTingExtended() in ting_search.test.
-  $advanced = FALSE;
+
+  $advanced = TRUE;
 
   // Parse extended search query parameters.
   if (arg(0) == 'search') {
@@ -169,6 +165,17 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
 
     $form['search_block_form']['#default_value'] = $search_query;
   }
+
+  $form['actions']['clear'] = array(
+    '#prefix' => '<button class="btn clear btn-artesis-blue" type="button" disabled title="' . t('Clear search input') . '">',
+    '#suffix' => '</button>',
+    '#markup' => '<i class="icon-remove"></i>',
+    '#weigth' => 1,
+  );
+
+  $form['actions']['submit']['#attributes'] = array('class' => array('btn', 'search', 'btn-artesis-turquoise'));
+  $form['actions']['submit']['#weight'] = 10;
+  $form['actions']['submit']['#value'] = '<i class="icon-search icon-white"></i> ' . $form['actions']['submit']['#value'];
 
   if ($advanced && module_exists('ting_search_extendform')) {
     $form['advanced'] = array(
@@ -222,17 +229,6 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
   );
 
   $form['#submit'] = array('ting_search_submit');
-
-  $form['actions']['clear'] = array(
-    '#prefix' => '<button class="btn clear btn-artesis-blue" type="button" disabled title="' . t('Clear search input') . '">',
-    '#suffix' => '</button>',
-    '#markup' => '<i class="icon-remove"></i>',
-    '#weigth' => 1,
-  );
-
-  $form['actions']['submit']['#attributes'] = array('class' => array('btn', 'search', 'btn-artesis-turquoise'));
-  $form['actions']['submit']['#weight'] = 10;
-  $form['actions']['submit']['#value'] = '<i class="icon-search icon-white"></i> ' . $form['actions']['submit']['#value'];
 }
 
 function _search_block_form__assign_weight($args) {
