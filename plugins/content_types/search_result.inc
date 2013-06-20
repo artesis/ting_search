@@ -83,7 +83,7 @@ function ting_search_search_result_content_type_render($subtype, $conf, $panel_a
       $output .= theme('search_result', array('result' => $result, 'module' => $conf['type']));
     }
     $output .= "</ol>\n";
-    $output .= theme('ting_search_pager', array('tags' => NULL, ));
+    $output .= theme('pager', array('tags' => NULL, ));
 
     $block->title = t('Search results');
     $block->content = $output;
