@@ -23,6 +23,7 @@
   font-weight: bold;
 }
 
+#advanced-search-wrapper,
 .extendsearch-advanced {
   display: none;
 }

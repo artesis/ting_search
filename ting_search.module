@@ -186,7 +186,6 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
     $form['advanced'] = array(
       '#type' => 'fieldset',
       '#title' => t('Advanced search'),
-      '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#prefix' => '<div id="advanced-search-wrapper">',
       '#suffix' => '</div>',
