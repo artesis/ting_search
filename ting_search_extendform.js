@@ -39,7 +39,8 @@
       });
       val ? btn.removeAttr('disabled') : btn.attr('disabled', true);
 
-      btn.click(function() {
+      btn.click(function(e) {
+        e.preventDefault();
         inputs.val('');
         $(this).attr('disabled', true);
       });
@@ -53,7 +54,8 @@
 
       $btn.removeAttr('disabled');
 
-      $btn.click(function(){
+      $btn.click(function(e){
+        e.preventDefault();
         $extendsearch.show().find('.fieldset-title').click();
         $(this).toggleClass('active');
       });
