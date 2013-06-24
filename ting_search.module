@@ -167,55 +167,28 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
   }
 
   $form['actions']['clear'] = array(
-    '#type' => 'button',
-    '#attributes' => array(
-      'class' => array('btn', 'clear', 'btn-artesis-blue'),
-      'disabled' => true,
-      'title' => t('Clear search input'),
-    ),
-    '#value' => '<i class="icon-remove"></i>',
+    '#type' => 'markup',
+    '#prefix' => '<button type="button" class="btn clear btn-artesis-blue" type="button" disabled title="' . t('Clear search input') . '">',
+    '#suffix' => '</button>',
+    '#markup' => '<i class="icon-remove"></i>',
     '#weigth' => 1,
     '#html' => TRUE,
   );
 
-  $form['actions']['submit']['#attributes'] = array('class' => array('btn', 'search', 'btn-artesis-turquoise'));
-  $form['actions']['submit']['#weight'] = 10;
-  $form['actions']['submit']['#value'] = '<i class="icon-search icon-white"></i> ' . $form['actions']['submit']['#value'];
-
   if ($advanced && module_exists('ting_search_extendform')) {
-    $form['advanced'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Advanced search'),
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
-      '#prefix' => '<div id="advanced-search-wrapper">',
-      '#suffix' => '</div>',
-    );
-
-    $expand = FALSE;
-    foreach ($advanced_fields as $name => $field) {
-      $form['advanced'][$field['key']] = array(
-        '#type' => 'textfield',
-        '#title' => $field['title'],
-        '#size' => 30,
-        '#maxlength' => 64,
-        '#description' => $field['description'],
-        '#default_value' => isset($indexes[$name]) ? $indexes[$name] : '',
-      );
-    }
-
     $form['actions']['advanced'] = array(
-      '#type' => 'button',
-      '#attributes' => array(
-        'class' => array('btn', 'advanced', 'btn-artesis-blue'),
-        'disabled' => true,
-        'title' => t('Advanced search'),
-      ),
-      '#value' => '<i class="icon-cog"></i>',
+      '#type' => 'markup',
+      '#prefix' => '<button type="button" class="btn advanced btn-artesis-blue" type="button" disabled title="' . t('Advanced search') . '">',
+      '#suffix' => '</button>',
+      '#markup' => '<i class="icon-cog"></i>',
       '#weigth' => 5,
       '#html' => TRUE,
     );
   }
+
+  $form['actions']['submit']['#attributes'] = array('class' => array('btn', 'search', 'btn-artesis-turquoise'));
+  $form['actions']['submit']['#weight'] = 10;
+  $form['actions']['submit']['#value'] = '<i class="icon-search icon-white"></i> ' . $form['actions']['submit']['#value'];
 
   $form['sort'] = array(
     '#type' => 'hidden',
