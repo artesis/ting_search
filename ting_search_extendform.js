@@ -51,6 +51,7 @@
     attach: function(context, settings) {
       var $btn = $('.btn.advanced', context);
       var $extendsearch = $('.extendsearch-advanced', context);
+      var $provider = $('#edit-search-provider input, #edit-search-provider label', context);
 
       $btn.removeAttr('disabled');
 
@@ -64,6 +65,16 @@
       if (!$extendsearch.hasClass('collapsed')) {
         $btn.addClass('active');
       }
+
+      // Handle changes of search provider.
+      $provider.click(function() {
+        if ($(this).val() != 'ting') {
+          $btn.attr('disabled', true);
+        }
+        else {
+          $btn.removeAttr('disabled');
+        }
+      });
     }
   };
 
@@ -168,4 +179,3 @@
   };
 
 } (jQuery));
-
