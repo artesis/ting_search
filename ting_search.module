@@ -218,7 +218,7 @@ function _search_block_form__assign_weight($args) {
   $args['search_block_form']['#weight'] = 10;
   $args['actions']['#weight'] = 11;
   $args['basic_search']['#weight'] = 12;
-  $args['advanced']['#weight'] = 13;
+  $args['advanced_search']['#weight'] = 13;
   return $args;
 }
 
