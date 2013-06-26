@@ -5,6 +5,7 @@
     Drupal.extendedQueryDisplay();
     Drupal.collapseExtendedSearch();
     Drupal.initSearchBlock();
+    Drupal.initExtendedSearchPlaceholders();
   });
 
   $.TingExtendedForm = {};
@@ -51,7 +52,7 @@
     attach: function(context, settings) {
       var $btn = $('.btn.advanced', context);
       var $extendsearch = $('.extendsearch-advanced', context);
-      var $provider = $('#edit-search-provider input, #edit-search-provider label', context);
+      var $provider = $('#edit-search-provider', context).children();
 
       $btn.removeAttr('disabled');
 
@@ -67,8 +68,24 @@
       }
 
       // Handle changes of search provider.
-      $provider.click(function() {
-        if ($(this).val() != 'ting') {
+      $provider.click(function(e) {
+
+        // Ugly hack for IE9. Prevents copying of placeholders into main search input.
+        if ($.browser.msie && $.browser.version == 9) {
+          $extendsearch.find('input').each(function(i, e){
+            $subject = $(e);
+            if ($subject.val() == $subject.attr('placeholder')) {
+              $subject.val('');
+            }
+          });
+        }
+
+        // Activate on wider area.
+        var $input = $('input', $(this));
+        $input.attr('checked', true);
+
+        // Disable/enable extended search button.
+        if ($input.val() != 'ting') {
           $btn.attr('disabled', true);
         }
         else {
@@ -84,6 +101,13 @@
         $('#ting-search-sort-form').trigger("submit");
       });
     }
+  };
+
+  // Adds placeholders to advanced search.
+  Drupal.initExtendedSearchPlaceholders = function() {
+    $('#edit-ting-search-extendform-creator-field').attr('placeholder', Drupal.t("Author - fx. Rowling"));
+    $('#edit-ting-search-extendform-title-field').attr('placeholder', Drupal.t("Title - fx. Harry Potter"));
+    $('#edit-ting-search-extendform-subject-field').attr('placeholder', Drupal.t("Subject - fx. Fantasy"));
   };
 
   Drupal.setSelectedLabel = function() {
