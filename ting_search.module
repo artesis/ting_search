@@ -729,7 +729,7 @@ function _ting_search_quote_callback($matches) {
  *
  * Add "permalink" and "show info" buttons.
  */
-function ting_search_ding_entity_buttons($type, $entity, $widget = 'default') {
+function ting_search_ding_entity_buttons($type, $entity, $newsearch) {
   if (!is_object($entity)) {
     return array();
   }
@@ -758,7 +758,7 @@ function ting_search_ding_entity_buttons($type, $entity, $widget = 'default') {
   $show_markup = array(
     '#theme' => 'link',
     '#text' => '<i class="icon-plus"></i>&nbsp;' . t('Show info'),
-    '#path' => current_path(),
+    '#path' => $newsearch ? $url : current_path(),
     '#options' => array(
       'attributes' => array(
         'class' => array(
