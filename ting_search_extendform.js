@@ -184,7 +184,7 @@
       $('.btn.permalink').click(function(e){
         var self = $(this);
         self.addClass('active');
-        var content = $('<div><textarea>' + self.attr('href') + '</textarea></div>');
+        var content = $('<div><input onclick="this.focus();this.select();" type="text" value="' + self.attr('href') + '"></div>');
         var dialog = content.dialog({
           'autoOpen': false,
           'modal': true,
