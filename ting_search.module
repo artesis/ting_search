@@ -734,6 +734,8 @@ function ting_search_ding_entity_buttons($type, $entity, $newsearch) {
     return array();
   }
 
+  drupal_add_library('system', 'ui.dialog');
+
   $options = array('absolute' => true);
   $url = url('search/ting/' . $entity->getLocalId(), $options);
 
