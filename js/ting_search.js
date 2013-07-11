@@ -30,11 +30,21 @@
       $('.btn.permalink', context).click(function(e){;
         var self = $(this);
         self.addClass('active');
+
+        var qr_img = '<img\
+          class="d-qr-code"\
+          src="http://api.qrserver.com/v1/create-qr-code/?data=' + self.data('creators') + encodeURIComponent('\n') + self.data('title') + encodeURIComponent('\n\n') + encodeURIComponent(self.attr('href')) + '&size=100x100"\
+          alt="' + Drupal.t('QR code') + '"\
+          title="' + Drupal.t('QR code with link to item') + '" >\
+        ';
+
         var content = $('<div>\
           <input onclick="this.focus();this.select();" type="text" value="' + self.attr('href') + '">\
-          <a class="btn btn-artesis-turquoise d-follow" href="' + self.attr('href') + '">' + Drupal.t('Follow') + '</a>\
-          </div>'
+          <a class="btn btn-artesis-turquoise d-follow" href="' + self.attr('href') + '">' + Drupal.t('Follow') + '</a>'
+          + qr_img +
+          '</div>'
         );
+
         var dialog = content.dialog({
           'autoOpen': false,
           'modal': true,
