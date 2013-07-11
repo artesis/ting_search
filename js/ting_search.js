@@ -11,6 +11,9 @@
         if (!e.show_reservation_button) {
           $reservation_controls.remove();
         }
+        else {
+          $reservation_controls.removeClass('ui-hidden');
+        }
 
         // Holdings.
         var $holdings_controls = $('.btn.find-it-here, .group_holdings', $context);
@@ -19,6 +22,9 @@
         if (e.holdings_available.length == 0) {
           $holdings_controls.remove();
           $sticky_menu_item.remove();
+        }
+        else {
+          $holdings_controls.removeAttr('disabled').removeClass('ui-hidden');
         }
       });
     });
