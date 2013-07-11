@@ -179,27 +179,4 @@
     });
   };
 
-  Drupal.behaviors.permalink = {
-    attach: function(context, settings) {
-      $('.btn.permalink').click(function(e){
-        var self = $(this);
-        self.addClass('active');
-        var content = $('<div><input onclick="this.focus();this.select();" type="text" value="' + self.attr('href') + '"></div>');
-        var dialog = content.dialog({
-          'autoOpen': false,
-          'modal': true,
-          'title': Drupal.t('Permalink'),
-          'beforeClose': function() {
-            self.removeClass('active');
-          }
-        });
-
-        dialog.dialog('open');
-        $('textarea', content).select();
-
-        return false;
-      });
-    }
-  };
-
 } (jQuery));
