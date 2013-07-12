@@ -751,6 +751,8 @@ function ting_search_ding_entity_buttons($type, $entity, $newsearch) {
           'btn-artesis-turquoise',
         ),
         'title' => t('Permalink'),
+        'data-title' => $entity->getTitle(),
+        'data-creators' => implode(', ', $entity->getCreators()),
       ),
       'html' => TRUE,
     ),

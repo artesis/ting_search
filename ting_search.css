@@ -33,3 +33,7 @@
   right: 0;
   bottom: 10px;
 }
+
+.ui-dialog-content .d-qr-code {
+  margin: 10px 0;
+}
