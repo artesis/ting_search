@@ -19,7 +19,7 @@
         var $holdings_controls = $('.btn.find-it-here, .group_holdings', $context);
         var $sticky_menu_item = $('.goto-' + $($holdings_controls[1]).attr('id'), $context);
 
-        if (e.holdings_available.length == 0) {
+        if (!e.holdings_available || e.holdings_available.length == 0) {
           $holdings_controls.remove();
           $sticky_menu_item.remove();
         }
