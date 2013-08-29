@@ -4,7 +4,7 @@
     // Handle async material status update.
     $(document).bind('materials_status', function(e, data) {
       $.each(data, function(i, e) {
-        var $context = $('#availability-' + e.local_id).closest('.search-result');
+        var $context = $('#availability-' + e.local_id.toLowerCase()).closest('.search-result');
 
         // Reservation.
         var $reservation_controls = $('.btn.reservation', $context);
@@ -19,7 +19,7 @@
         var $holdings_controls = $('.btn.find-it-here, .group_holdings', $context);
         var $sticky_menu_item = $('.goto-' + $($holdings_controls[1]).attr('id'), $context);
 
-        if (!e.holdings_available || e.holdings_available.length == 0) {
+        if (e.holdings.length === 0) {
           $holdings_controls.remove();
           $sticky_menu_item.remove();
         }
