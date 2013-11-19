@@ -42,7 +42,7 @@
 
       btn.click(function(e) {
         e.preventDefault();
-        inputs.val('');
+        $(this).parents('form')[0].reset();
         $(this).attr('disabled', true);
       });
     }
