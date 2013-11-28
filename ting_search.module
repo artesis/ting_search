@@ -375,7 +375,7 @@ function ting_search_search_execute($keys = NULL, $conditions = NULL) {
     pager_default_initialize($total_results, $results_per_page);
 
     foreach ($search_result as $object) {
-      $build = ting_object_view($object, 'search_result');
+      $build = ting_object_view($object, variable_get('ting_search_object_display', 'search_result'));
 
       // Set proper link to result item.
       $uri = entity_uri('ting_object', $object);
