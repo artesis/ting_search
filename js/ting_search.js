@@ -3,6 +3,11 @@
 
     // Handle async material status update.
     $(document).bind('materials_status', function(e, data) {
+      if (typeof(data.error) != undefined) {
+        // Authentication or another error.
+        return;
+      }
+
       $.each(data, function(i, e) {
         var $context = $('#availability-' + e.local_id.toLowerCase()).closest('.search-result');
 
