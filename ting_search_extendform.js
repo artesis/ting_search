@@ -42,7 +42,10 @@
 
       btn.click(function(e) {
         e.preventDefault();
-        $(this).parents('form')[0].reset();
+        inputs.val('');
+        // Small hack to restore IE placeholders.
+        inputs[1].focus();
+        inputs[0].focus();
         $(this).attr('disabled', true);
       });
     }
