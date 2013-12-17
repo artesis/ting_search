@@ -148,6 +148,7 @@
         if (!$('#edit-advanced-search').hasClass('collapsed')) {
           $(".extendsearch-advanced .fieldset-title").click();
           $('.btn.advanced').toggleClass('active');
+          $('.btn.advanced i').toggleClass('icon-down-open').toggleClass('icon-right-open');
         }
       }
     });
