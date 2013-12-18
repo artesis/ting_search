@@ -45,13 +45,14 @@
 
         // Small hack to restore IE placeholders.
         var input = null;
-        inputs.each(function() {
+        var is_ie = navigator.userAgent.match(/MSIE/);
+        inputs.val(function(i, val) {
           input = $(this);
-          if (input.attr('placeholder')) {
-            input.val(input.attr('placeholder'));
+          if (input.attr('placeholder') && is_ie) {
+            return input.attr('placeholder');
           }
           else {
-            input.val('');
+            return '';
           }
         });
 
