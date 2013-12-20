@@ -42,7 +42,20 @@
 
       btn.click(function(e) {
         e.preventDefault();
-        $(this).parents('form')[0].reset();
+
+        // Small hack to restore IE placeholders.
+        var input = null;
+        var is_ie = navigator.userAgent.match(/MSIE/);
+        inputs.val(function(i, val) {
+          input = $(this);
+          if (input.attr('placeholder') && is_ie) {
+            return input.attr('placeholder');
+          }
+          else {
+            return '';
+          }
+        });
+
         $(this).attr('disabled', true);
       });
     }
