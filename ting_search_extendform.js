@@ -67,7 +67,9 @@
       var $extendsearch = $('.extendsearch-advanced', context);
       var $provider = $('#edit-search-provider', context).children();
 
-      $btn.removeAttr('disabled');
+      if ($('input[name="search_provider"]:checked').val() == 'ting') {
+        $btn.removeAttr('disabled');
+      }
 
       $btn.click(function(e){
         e.preventDefault();
