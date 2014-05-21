@@ -9,7 +9,7 @@
       }
 
       $.each(data, function(i, e) {
-        var $context = $('#availability-' + e.local_id).closest('.search-result');
+        var $context = $('#availability-' + e.local_id.toLowerCase()).closest('.search-result');
 
         // Reservation.
         var $reservation_controls = $('.btn.reservation', $context);
