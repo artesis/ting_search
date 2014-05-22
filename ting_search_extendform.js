@@ -120,9 +120,9 @@
 
   // Adds placeholders to advanced search.
   Drupal.initExtendedSearchPlaceholders = function() {
-    $('#edit-ting-search-extendform-creator-field').attr('placeholder', Drupal.t("Author - fx. Rowling"));
-    $('#edit-ting-search-extendform-title-field').attr('placeholder', Drupal.t("Title - fx. Harry Potter"));
-    $('#edit-ting-search-extendform-subject-field').attr('placeholder', Drupal.t("Subject - fx. Fantasy"));
+    $('[id^="edit-ting-search-extendform-creator-field"]').attr('placeholder', Drupal.t("Author - fx. Rowling"));
+    $('[id^="edit-ting-search-extendform-title-field"]').attr('placeholder', Drupal.t("Title - fx. Harry Potter"));
+    $('[id^="edit-ting-search-extendform-subject-field"]').attr('placeholder', Drupal.t("Subject - fx. Fantasy"));
   };
 
   Drupal.setSelectedLabel = function() {
@@ -152,7 +152,7 @@
 
   Drupal.collapseExtendedSearch = function() {
     var inside_form = false;
-    $('#search-block-form').live('mouseenter', function() {
+    $('[id^="search-block-form"]').live('mouseenter', function() {
       inside_form = true;
     }).live('mouseleave', function() {
       inside_form = false;
@@ -160,7 +160,7 @@
 
     $(document).click(function(event) {
       if (!inside_form) {
-        if (!$('#edit-advanced-search').hasClass('collapsed')) {
+        if (!$('[id^="edit-advanced-search"]').hasClass('collapsed')) {
           $(".extendsearch-advanced .fieldset-title").click();
           $('.btn.advanced').toggleClass('active');
           $('.btn.advanced i').toggleClass('icon-down-open').toggleClass('icon-right-open');
@@ -170,7 +170,7 @@
   };
 
   Drupal.initSearchBlock = function() {
-    var form = $('#search-block-form');
+    var form = $('[id^="search-block-form"]');
 
     // Toggle class for focused fields.
     form.find('.extendsearch-advanced input[type=text]').focus(function() {
