@@ -102,14 +102,14 @@ class TingSearchTestCase extends DrupalWebTestCase {
   }
 
   public function testTingExtended() {
-    $this->drupalGet('search/ting/water AND (dc.title=chemistry)');
+    $this->drupalGet('search/ting/water AND (term.title=chemistry)');
 
     $this->assertFieldByName("search_block_form", 'water', "Search field contains 'water'.");
     // advanced search is disabled in ting_search.module - so assert below is
     // also disabled.
     //$this->assertFieldById("edit-title", 'chemistry', "Title field contains 'chemestry'.");
 
-    $this->drupalGet('search/node/water AND (dc.title=chemistry)');
+    $this->drupalGet('search/node/water AND (term.title=chemistry)');
 
     $this->assertFieldByName("search_block_form", 'water chemistry', "Search field contains 'water chemistry'.");
     // advanced search is disabled in ting_search.module - so assert below is
@@ -131,48 +131,48 @@ class TingSearchParsingTestCase extends DrupalUnitTestCase {
     drupal_load('module', 'ting_search');
     $testCases = array(
       array(
-        'string' => 'water AND (dc.title=chemestry)',
-        'keys' => array('dc.title'),
+        'string' => 'water AND (term.title=chemestry)',
+        'keys' => array('term.title'),
         'expected' => array(
           'q' => 'water',
-          'dc.title' => 'chemestry',
+          'term.title' => 'chemestry',
         ),
       ),
 
       /* array( */
-      /*   'string' => 'water and one=one aNd (dc.title=test) and two="two double" And three=' . "'three 3'", */
+      /*   'string' => 'water and one=one aNd (term.title=test) and two="two double" And three=' . "'three 3'", */
       /*   'keys' => array('one', 'two', 'three'), */
       /*   'expected' => array( */
-      /*     'q' => 'water aNd (dc.title=test)', */
+      /*     'q' => 'water aNd (term.title=test)', */
       /*     'one' => 'one', */
       /*     'two' => '"two double"', */
       /*     'three' => "'three 3'", */
       /*   ), */
       /* ), */
       array(
-        'string' => 'harry AND (dc.creator=rowling AND dc.title="flammernes pokal")',
-        'keys' => array('dc.creator', 'dc.title'),
+        'string' => 'harry AND (term.creator=rowling AND term.title="flammernes pokal")',
+        'keys' => array('term.creator', 'term.title'),
         'expected' => array(
           'q' => 'harry',
-          'dc.creator' => 'rowling',
-          'dc.title' => 'flammernes pokal',
+          'term.creator' => 'rowling',
+          'term.title' => 'flammernes pokal',
         ),
       ),
       array(
-        'string' => '(dc.creator=rowling)',
-        'keys' => array('dc.creator', 'dc.title'),
+        'string' => '(term.creator=rowling)',
+        'keys' => array('term.creator', 'term.title'),
         'expected' => array(
           'q' => '',
-          'dc.creator' => 'rowling',
+          'term.creator' => 'rowling',
         ),
       ),
       array(
-        'string' => '(dc.creator=rowling AND dc.title="flammernes pokal")',
-        'keys' => array('dc.creator', 'dc.title'),
+        'string' => '(term.creator=rowling AND term.title="flammernes pokal")',
+        'keys' => array('term.creator', 'term.title'),
         'expected' => array(
           'q' => '',
-          'dc.creator' => 'rowling',
-          'dc.title' => 'flammernes pokal',
+          'term.creator' => 'rowling',
+          'term.title' => 'flammernes pokal',
         ),
       ),
     );
@@ -204,20 +204,20 @@ class TingSearchParsingTestCase extends DrupalUnitTestCase {
         'expected' => 'anders AND',
       ),
       array(
-        'string' => 'anders and AND (dc.title=historie)',
-        'expected' => 'anders "and" AND (dc.title=historie)',
+        'string' => 'anders and AND (term.title=historie)',
+        'expected' => 'anders "and" AND (term.title=historie)',
       ),
       array(
-        'string' => 'anders AND (dc.title=historie)',
-        'expected' => 'anders AND (dc.title=historie)',
+        'string' => 'anders AND (term.title=historie)',
+        'expected' => 'anders AND (term.title=historie)',
       ),
       array(
-        'string' => '"anders and" (dc.title=historie)',
-        'expected' => '"anders and" (dc.title=historie)',
+        'string' => '"anders and" (term.title=historie)',
+        'expected' => '"anders and" (term.title=historie)',
       ),
       array(
-        'string' => '"anders \"and\"" (dc.title=historie)',
-        'expected' => '"anders \"and\"" (dc.title=historie)',
+        'string' => '"anders \"and\"" (term.title=historie)',
+        'expected' => '"anders \"and\"" (term.title=historie)',
       ),
     );
     foreach ($testCases as $test) {
