@@ -22,3 +22,18 @@
 .navigate select {
   float: left;
 }
+
+.search-result a.btn:hover {
+  text-decoration: none;
+}
+
+/* UI Dialog Popup */
+.ui-dialog-content .btn.d-follow {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+}
+
+.ui-dialog-content .d-qr-code {
+  margin: 10px 0;
+}

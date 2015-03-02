@@ -41,9 +41,9 @@ function ting_search_menu_alter(&$items) {
   $items['search/ting/%menu_tail']['title'] = 'Materials';
   $items['search/ting/%menu_tail']['weight'] = 1;
   $items['search/meta/%menu_tail']['load arguments'] = array('%map', '%index');
-  $items['search/meta']['title'] = 'E-ressources';
+  $items['search/meta']['title'] = 'E-articles';
   $items['search/meta']['weight'] = 3;
-  $items['search/meta/%menu_tail']['title'] = 'E-ressources';
+  $items['search/meta/%menu_tail']['title'] = 'E-articles';
   $items['search/meta/%menu_tail']['weight'] = 3;
   $items['search/meta/%menu_tail']['load arguments'] = array('%map', '%index');
 }
@@ -65,24 +65,12 @@ function ting_search_search_info() {
 function ting_search_ding_facetbrowser() {
   $results             = new stdClass();
   $results->show_empty = FALSE;
-  $search_result       = drupal_static('ting_search_results');
+  $search_result = drupal_static('ting_search_results');
   if ($search_result) {
-    $results->facets     = ($search_result instanceof TingClientSearchResult) ? $search_result->facets : array();
-    $results->searchkey  = $search_result->search_key;
+    $results->facets = $search_result->getFacets();
+    $results->searchkey = $search_result->getKeyword();
     return $results;
   }
-}
-
-/**
- * Implements hook_entity_info_alter().
- */
-function ting_search_entity_info_alter(&$entity_info) {
-  $entity_info['ting_collection']['view modes'] += array(
-    'search_result' => array(
-      'label' => t('Search result'),
-      'custom settings' => FALSE,
-    ),
-  );
 }
 
 /**
@@ -135,29 +123,29 @@ function ting_search_get_extended_actions() {
  * @brief Implementation of hook_form_FORM_ID_alter() for form search_block_form.
  */
 function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id) {
+
+  $form['#attributes'] = array('class' => array('input-append'));
+  $form['#process'][] = '_search_block_form__assign_weight';
+
   $advanced_fields = array(
-    'dc.creator' => array(
+    'term.creator' => array(
       'key' => 'creator',
       'title' => t('Author'),
       'description' => t('Enter the author name'),
     ),
-    'dc.title' => array(
+    'term.title' => array(
       'key' => 'title',
       'title' => t('Title'),
       'description' => t('Enter title'),
     ),
-    'dc.subject' => array(
+    'term.subject' => array(
       'key' => 'subject',
       'title' => t('Subject'),
       'description' => t('Enter subject keywords'),
     ),
   );
-  // We're going to disable advanced search in
-  // the first version, and implement later on.
-  // When implementing againg, set
-  // $advanced = TRUE - just below
-  // and re-enable asserts in testTingExtended() in ting_search.test.
-  $advanced = FALSE;
+
+  $advanced = TRUE;
 
   // Parse extended search query parameters.
   if (arg(0) == 'search') {
@@ -178,54 +166,60 @@ function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id
     $form['search_block_form']['#default_value'] = $search_query;
   }
 
+  $form['actions']['clear'] = array(
+    '#type' => 'markup',
+    '#prefix' => '<button type="button" class="btn clear btn-artesis-blue" type="button" disabled title="' . t('Clear search input') . '">',
+    '#suffix' => '</button>',
+    '#markup' => '<i class="icon-remove"></i>',
+    '#weigth' => 1,
+    '#html' => TRUE,
+  );
+
+  if ($advanced && module_exists('ting_search_extendform')) {
+    $form['actions']['advanced'] = array(
+      '#type' => 'markup',
+      '#prefix' => '<button type="button" class="btn advanced btn-artesis-blue" type="button" disabled title="' . t('Advanced search') . '">',
+      '#suffix' => '</button>',
+      '#markup' => '<i class="icon-right-open"></i>',
+      '#weigth' => 5,
+      '#html' => TRUE,
+    );
+  }
+
+  $form['actions']['submit']['#attributes'] = array('class' => array('btn', 'search', 'btn-artesis-turquoise'));
+  $form['actions']['submit']['#weight'] = 10;
+  $form['actions']['submit']['#value'] = '<i class="icon-search icon-white"></i> ' . $form['actions']['submit']['#value'];
+
   $form['sort'] = array(
     '#type' => 'hidden',
     '#default_value' => isset($_GET['sort']) ? check_plain($_GET['sort']) : FALSE,
     '#attributes' => array('id' => 'controls_search_sort'),
   );
+
   $form['size'] = array(
     '#type' => 'hidden',
     '#default_value' => isset($_GET['size']) ? (int) $_GET['size'] : FALSE,
     '#attributes' => array('id' => 'controls_search_size'),
   );
 
-  // See line 127-130 - disable in the first version
-  //$form['form_id']['#suffix'] = ting_search_get_extended_actions();
+  $form['#attached'] = array(
+    'css' => array(
+      drupal_get_path('module', 'ting_search') . '/ting_search_extendform.css',
+    ),
+    'js' => array(
+      drupal_get_path('module', 'ting_search') . '/ting_search_extendform.js',
+    ),
+  );
 
-  if ($advanced) {
-    $form['advanced'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Advanced search'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-      '#weight' => 101,
-      '#prefix' => '<div id="advanced-search-wrapper">',
-      '#suffix' => '</div>',
-      '#attached' => array(
-        'css' => array(
-          drupal_get_path('module', 'ting_search') . '/ting_search_extendform.css',
-        ),
-        'js' => array(
-          drupal_get_path('module', 'ting_search') . '/ting_search_extendform.js',
-        ),
-      ),
-    );
-
-    $expand = FALSE;
-    foreach ($advanced_fields as $name => $field) {
-      $form['advanced'][$field['key']] = array(
-        '#type' => 'textfield',
-        '#title' => $field['title'],
-        '#size' => 30,
-        '#maxlength' => 64,
-        '#description' => $field['description'],
-        '#default_value' => isset($indexes[$name]) ? $indexes[$name] : '',
-      );
-    }
-  }
   $form['#submit'] = array('ting_search_submit');
+}
 
-  return $form;
+function _search_block_form__assign_weight($args) {
+  $args['search_block_form']['#weight'] = 10;
+  $args['actions']['#weight'] = 11;
+  $args['basic_search']['#weight'] = 12;
+  $args['advanced_search']['#weight'] = 13;
+  return $args;
 }
 
 /**
@@ -364,46 +358,38 @@ function ting_search_search_execute($keys = NULL, $conditions = NULL) {
       $options['sort'] = $conditions['sort'];
     }
 
-
     if (module_exists('ting')) {
       $search_result = ting_do_search($query, $page + 1, $results_per_page, $options);
+      if (!is_a($search_result, 'TingSearchResult')) {
+        throw new TingClientException('Not a TingSearchResult');
+      }
+
+      $search_result->setKeyword($keys);
     }
     else {
       watchdog('ting_search', 'Enable ting-module to get searchresults', array(), WATCHDOG_CRITICAL);
       $search_result = array();
     }
 
-    if (isset($search_result->collections)) {
-      $search_result->search_key = $keys;
+    $total_results = $search_result->getTotal();
+    pager_default_initialize($total_results, $results_per_page);
 
-      // TODO: caching highes total_result know value of specific search
-      //       at the moment we only know if there is one more page
-      $total_results = ($page + 1) * $results_per_page + ($search_result->more ? 1 : 0);
+    foreach ($search_result as $object) {
+      $build = ting_object_view($object, variable_get('ting_search_object_display', 'search_result'));
 
-      pager_default_initialize($total_results, $results_per_page);
+      // Set proper link to result item.
+      $uri = entity_uri('ting_object', $object);
 
-      foreach ($search_result->collections as &$collection) {
-
-        $build = ting_collection_view($collection, 'teaser');
-
-        // Set proper link to result item.
-        if (count($collection->entities) == 1) {
-          $uri =  entity_uri('ting_object', $collection->entities[0]);
-        }
-        else {
-          $uri = entity_uri('ting_collection', $collection);
-        }
-
-        $results[] = array(
-          'type' => '',
-          'user' => '',
-          'date' => '',
-          'link' => url($uri['path']),
-          'title' => $collection->reply->objects[0]->record['dc:title'][''][0],
-          'snippet' => drupal_render($build),
-        );
-      }
+      $results[] = array(
+        'type' => '',
+        'user' => '',
+        'date' => '',
+        'link' => url($uri['path']),
+        'title' => $object->getTitle(),
+        'snippet' => drupal_render($build)
+      );
     }
+
   }
   catch (TingClientException $e) {
     // TODO: Log the error.
@@ -428,137 +414,6 @@ function ting_search_search_page($results) {
     '#results' => $results,
     '#module' => 'ting_search',
   );
-}
-
-/**
- * Theme a pager
- */
-function theme_ting_search_pager($variables) {
-  $tags = $variables['tags'];
-  $element = $variables['element'];
-  $parameters = $variables['parameters'];
-  $quantity = $variables['quantity'];
-  $hide_list = isset($variables['hide_list']) ? $variables['hide_list'] : FALSE;
-  global $pager_page_array, $pager_total;
-
-  // Calculate various markers within this pager piece:
-  // Middle is used to "center" pages around the current page.
-  $pager_middle = ceil($quantity / 2);
-  // current is the page we are currently paged to
-  $pager_current = $pager_page_array[$element] + 1;
-  // first is the first page listed by this pager piece (re quantity)
-  $pager_first = $pager_current - $pager_middle + 1;
-  // last is the last page listed by this pager piece (re quantity)
-  $pager_last = $pager_current + $quantity - $pager_middle;
-  // max is the maximum page number
-  $pager_max = $pager_total[$element];
-  // End of marker calculations.
-
-  // Prepare for generation loop.
-  $i = $pager_first;
-  if ($pager_last > $pager_max) {
-    // Adjust "center" if at end of query.
-    $i = $i + ($pager_max - $pager_last);
-    $pager_last = $pager_max;
-  }
-  if ($i <= 0) {
-    // Adjust "center" if at start of query.
-    $pager_last = $pager_last + (1 - $i);
-    $i = 1;
-  }
-  // End of generation loop preparation.
-
-  $li_previous = theme('pager_previous', array('text' => (isset($tags[1]) ? $tags[1] : t('‹ previous')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
-
-  if (empty($li_previous)) {
-    $li_previous = "&nbsp;";
-  }
-
-  $li_first = theme('pager_first', array('text' => (isset($tags[0]) ? $tags[0] : t('« first')), 'element' => $element, 'parameters' => $parameters));
-
-  if (empty($li_first)) {
-    $li_first = "&nbsp;";
-  }
-
-  $li_next = theme('pager_next', array('text' => (isset($tags[3]) ? $tags[3] : t('next ›')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
-  if (empty($li_next)) {
-    $li_next = "&nbsp;";
-  }
-
-  $li_last = theme('pager_last', array('text' => (isset($tags[4]) ? $tags[4] : t('last »')), 'element' => $element, 'parameters' => $parameters));
-
-  if (empty($li_last)) {
-    $li_last = "&nbsp;";
-  }
-
-  if ($pager_total[$element] > 1) {
-    if ($pager_current > 2) {
-      $items[] = array(
-        'class' => array('pager-first'),
-        'data' => $li_first,
-      );
-    }
-
-    $items[] = array(
-      'class' => array('pager-previous'),
-      'data' => $li_previous,
-    );
-
-    // When there is more than one page, create the pager list.
-    if (!$hide_list && $i != $pager_max) {
-      if ($i > 1) {
-        $items[] = array(
-          'class' => array('pager-ellipsis'),
-          'data' => '…',
-        );
-      }
-      // Now generate the actual pager piece.
-      for (; $i <= $pager_last && $i <= $pager_max; $i++) {
-        if ($i < $pager_current) {
-          $items[] = array(
-            'class' => array('pager-item'),
-            'data' => theme('pager_previous', array('text' => $i, 'element' => $element, 'interval' => ($pager_current - $i), 'parameters' => $parameters)),
-          );
-        }
-        if ($i == $pager_current) {
-          $items[] = array(
-            'class' => array('pager-current'),
-            'data' => $i,
-          );
-        }
-        if ($i > $pager_current) {
-          $items[] = array(
-            'class' => array('pager-item'),
-            'data' => theme('pager_next', array('text' => $i, 'element' => $element, 'interval' => ($i - $pager_current), 'parameters' => $parameters)),
-          );
-        }
-      }
-      if ($i < $pager_max) {
-        $items[] = array(
-          'class' => array('pager-ellipsis'),
-          'data' => '…',
-        );
-      }
-    }
-    else {
-      $items[] = array(
-        'class' => array('pager-current'),
-        'data' => $pager_current,
-      );
-    }
-
-    $items[] = array(
-      'class' => array('pager-next'),
-      'data' => $li_next,
-    );
-    if ($pager_current + 1 < $pager_max && $li_last) {
-      $items[] = array(
-        'class' => array('pager-last'),
-        'data' => $li_last,
-      );
-    }
-    return theme('item_list', array('items' => $items, 'type' => 'ul', 'attributes' => array('class' => array('pager'))));
-  }
 }
 
 /**
@@ -769,9 +624,9 @@ function ting_search_submit($form, &$form_state) {
   $fields = array();
 
   $extended_fields = array(
-    'creator' => 'dc.creator',
-    'title' => 'dc.title',
-    'subject' => 'dc.subject',
+    'creator' => 'term.creator',
+    'title' => 'term.title',
+    'subject' => 'term.subject',
   );
 
   foreach ($extended_fields as $name => $index) {
@@ -835,36 +690,123 @@ function ting_search_submit($form, &$form_state) {
 }
 
 /**
- * Attempt to quote reserved words in a search query.
+ * Make a search query strict cql.
+ * check if string is valid cql. if not make it valid.
  *
- * As proper quoting would require a full CQL parser, we cheat and
- * just work on the part we know is the free text part.
+ * examples,
+ * hest hund -> hest and hund (invalid cql. words are and'ed )
+ * "hest" or "hund" -> "hest" or "hund" (valid cql) nothing is done
+ * "hest or hund" -> "hest or hund". (valid cql) search for full phrase
  *
- * Also, we don't mess with uppercase reserved words.
+ * @see _ting_search_string_to_cql, _ting_search_convert_string_to_cql, _ting_search_string_is_cql
  */
 function _ting_search_quote($string) {
-  if (preg_match('/^(.*?)(AND \(.*|$)/', $string, $rx)) {
-    $keys = $rx[1];
-    $new_keys = preg_replace_callback('/(?:(".*?(?<!\\\)")|\b(and|or|not|prox)\b)/i', '_ting_search_quote_callback', $keys);
-    $string = preg_replace('/^' . preg_quote($keys) . '/', $new_keys, $string);
+  $ret = _ting_search_string_to_cql($string);
+
+  return $ret;
+}
+
+/** Method to convert a string to strict cql (Basically by adding quotes when needed)
+ * @param $string
+ * @return string
+ */
+function _ting_search_string_to_cql($string) {
+  if (isset($string) && !_ting_search_string_is_cql($string)) {
+    $string = _ting_search_convert_string_to_cql($string);
   }
+
   return $string;
 }
 
-/**
- *
+/** Add quotes to string and escapes existing quotes
+ * @param $string
+ * @return string
  */
-function _ting_search_quote_callback($matches) {
-  // If $matches[2] is empty, it's because the quote pattern
-  // matched. Don't do anything with it.
-  if (!empty($matches[2])) {
-    // Boolean operator, but not uppercase, quote it.
-    if ($matches[2] != drupal_strtoupper($matches[2])) {
-      return '"' . $matches[2] . '"';
-    }
-    // Uppercase boolean operator, return as is.
-    return $matches[2];
+function _ting_search_convert_string_to_cql($string) {
+  // Escape quotes
+  $string = str_replace('"', '\"', $string);
+  // remove multiple whitespaces
+  $string = preg_replace('/\s+/', ' ', $string);
+  // explode string by whitespace
+  $expressions = explode(' ', $string);
+
+  // join expressions with 'and' operator
+  return implode(' and ', $expressions);
+}
+
+/** Tests if a string is cql
+ * @param $string
+ * @return bool|int
+ */
+function _ting_search_string_is_cql($string) {
+  if (strpos($string, '"') !== FALSE && (!preg_match('@ and | or | not |=@', $string) && !(substr($string, 0, 1) === '"' && substr($string, -1) === '"'))) {
+    return FALSE;
   }
-  // We have a quote. Just return it.
-  return $matches[1];
+
+  return preg_match('@"|\(|\)|=@', $string);
+}
+
+/**
+ * Implements hook_ding_entity_buttons().
+ *
+ * Add "permalink" and "show info" buttons.
+ */
+function ting_search_ding_entity_buttons($type, $entity, $newsearch) {
+  if (!is_object($entity)) {
+    return array();
+  }
+
+  drupal_add_library('system', 'ui.dialog');
+
+  $options = array('absolute' => true);
+  $url = url('search/ting/' . $entity->getAcIdentifier(), $options);
+
+  $permalink_markup = array(
+    '#theme' => 'link',
+    '#text' => '&nbsp;<i class="icon-white icon-flag"></i>&nbsp;',
+    '#path' => $url,
+    '#options' => array(
+      'attributes' => array(
+        'class' => array(
+          'btn',
+          'permalink',
+          'btn-artesis-turquoise',
+        ),
+        'title' => t('Permalink'),
+        'data-title' => $entity->getTitle(),
+        'data-creators' => implode(', ', $entity->getCreators()),
+      ),
+      'html' => TRUE,
+    ),
+    '#weight' => 100,
+  );
+
+  $show_markup = array(
+    '#theme' => 'link',
+    '#text' => '<i class="icon-plus"></i>&nbsp;' . t('Show info'),
+    '#path' => $newsearch ? $url : current_path(),
+    '#options' => array(
+      'attributes' => array(
+        'class' => array(
+          'btn',
+          'show-info',
+          'btn-artesis-blue',
+        ),
+      ),
+      'html' => TRUE,
+    ),
+    '#weight' => $show_markup['#weight'] + 1,
+  );
+
+  $hide_markup = $show_markup;
+  $hide_markup['#text'] = '<i class="icon-minus"></i>&nbsp;' . t('Hide info');
+  $hide_markup['#options']['attributes']['class'] = array(
+    'btn',
+    'hide-info',
+    'btn-artesis-blue',
+    'hidden',
+  );
+  $hide_markup['#weight'] = $show_markup['#weight'] + 1;
+
+  return array($permalink_markup, $show_markup, $hide_markup);
 }

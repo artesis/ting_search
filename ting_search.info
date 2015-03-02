@@ -6,4 +6,5 @@ core = 7.x
 files[] = ting_search.test
 ;dependencies[] = ting
 dependencies[] = search
+scripts[] = js/ting_search.js
 stylesheets[all][] = ting_search.css
