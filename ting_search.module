@@ -123,6 +123,8 @@ function ting_search_get_extended_actions() {
  * @brief Implementation of hook_form_FORM_ID_alter() for form search_block_form.
  */
 function ting_search_form_search_block_form_alter(&$form, &$form_state, $form_id) {
+  drupal_add_js('misc/form.js');
+  drupal_add_js('misc/collapse.js');
 
   $form['#attributes'] = array('class' => array('input-append'));
   $form['#process'][] = '_search_block_form__assign_weight';
